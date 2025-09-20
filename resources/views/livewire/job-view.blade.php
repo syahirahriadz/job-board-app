@@ -76,6 +76,13 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             Posted on {{ $job?->created_at->format('F j, Y') }}
+                            {{-- <span
+                                x-text="`Posted on ${new Date(job.created_at).toLocaleDateString('en-US', {
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                })}`"
+                            ></span> --}}
                         </div>
                     </div>
 
@@ -94,8 +101,11 @@
 
                 <!-- Modal Footer -->
                 <div class="flex items-center justify-end p-6 border-t border-gray-200 dark:border-gray-700 space-x-3">
-                    <button wire:click="closeModal"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    <button
+                            x-transition
+                            type="button"
+                            wire:click="closeModal"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 hover:shadow-md">
                         Close
                     </button>
                     <button wire:click="applyForJob({{ $job?->id }})" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">

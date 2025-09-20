@@ -9,6 +9,7 @@ use Livewire\Component;
 class JobView extends Component
 {
     public ?Job $job = null;
+    // public ?array $job = null;
     public bool $showModal = false;
 
     #[On('jobViewed')]

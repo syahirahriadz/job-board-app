@@ -1,21 +1,43 @@
-<div>
+<div x-data="{ showModal: @entangle('showModal') }" x-cloak>
     <!-- Application Modal -->
-    @if($showModal && $job)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    {{-- @if($showModal && $job) --}}
+        <div
+            x-show="showModal"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <!-- Modal Backdrop -->
-            <div class="fixed inset-0 bg-gray-500/80 transition-opacity animate-in fade-in duration-300"
-                 wire:click="closeModal"></div>
+            <div
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-gray-500/80 transition-opacity animate-in fade-in duration-300"
+                wire:click="closeModal"></div>
 
             <!-- Modal Content -->
             <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                 <!-- Modal Header -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                <div
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
                             Apply for Position
                         </h2>
                         <p class="text-gray-600 dark:text-gray-400 mt-1">
-                            {{ $job->title }} at {{ $job->company }}
+                            {{ $job?->title }} at {{ $job?->company }}
                         </p>
                     </div>
                     <button wire:click="closeModal"
@@ -195,7 +217,7 @@
                 </form>
             </div>
         </div>
-    @endif
+    {{-- @endif --}}
 
     <!-- Success/Error Messages -->
     @if (session()->has('message'))
