@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 class JobList extends Component
 {
-    public $jobs = [];
     // public Collection $jobs;
+    public $jobs = [];
+    public $currentSearch = '';
 
     #[On('jobCreated')]
     public function handleJobCreated($jobId)
@@ -18,15 +19,19 @@ class JobList extends Component
         // $this->jobs[] = Job::find($jobId);
         // $this->jobs->add(Job::find($jobId));
 
-        if ($job = Job::find($jobId)) {
-            $this->jobs[] = $job->toArray();
-        }
+        // if ($job = Job::find($jobId)) {
+        //     $this->jobs[] = $job->toArray();
+        // }
+
+        $this->refreshJobs();
+
     }
 
      #[On('jobUpdated')]
     public function handleJobUpdated()
     {
-        $this->jobs = Job::all()->toArray();
+        // $this->jobs = Job::all()->toArray();
+        $this->refreshJobs();
     }
 
     public function viewJob($jobId)
@@ -43,7 +48,8 @@ class JobList extends Component
     //to load all job
     public function mount()
     {
-        $this->jobs = Job::all()->toArray();
+        // $this->jobs = Job::all()->toArray();
+        $this->refreshJobs();
     }
 
     public function deleteJob($jobId)
@@ -64,6 +70,7 @@ class JobList extends Component
         // Delete from database
         if ($job = Job::find($jobId)) {
             $job->delete();
+            $this->refreshJobs();
         }
 
         // Remove from the array Alpine is entangled with
@@ -73,6 +80,36 @@ class JobList extends Component
                 fn($j) => $j['id'] !== $jobId // keep all except the deleted id
             )
         );
+    }
+
+    #[On('searchUpdated')]
+    public function handleSearchUpdated($search)
+    {
+        $this->currentSearch = $search;
+        $this->refreshJobs();
+    }
+
+    protected function refreshJobs()
+    {
+        // if (empty($this->currentSearch)) {
+        //     $this->jobs = Job::latest()->get()->toArray();
+        // } else {
+        //     $this->jobs = Job::where('title', 'like', '%' . $this->currentSearch . '%')
+        //         ->orWhere('company', 'like', '%' . $this->currentSearch . '%')
+        //         ->orWhere('location', 'like', '%' . $this->currentSearch . '%')
+        //         ->latest()
+        //         ->get();
+        // }
+
+        $query = Job::query();
+
+        if (!empty($this->currentSearch)) {
+            $query->where('title', 'like', '%' . $this->currentSearch . '%')
+                ->orWhere('company', 'like', '%' . $this->currentSearch . '%')
+                ->orWhere('location', 'like', '%' . $this->currentSearch . '%');
+        }
+
+        $this->jobs = $query->latest()->get()->toArray();
     }
 
     public function render()

@@ -1,4 +1,6 @@
 <div x-data="{ jobs: @entangle('jobs') }" x-cloak class="w-full px-4 sm:px-6 lg:px-8" >
+    {{-- Job Search Component --}}
+    <livewire:job-search />
     <!-- Job Cards -->
     <div class="space-y-4">
         {{-- @forelse($jobs as $index => $job) --}}
