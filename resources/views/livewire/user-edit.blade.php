@@ -35,7 +35,7 @@
                         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                         class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Create a New Job
+                            Edit User
                         </h3>
                         <button wire:click="closeModal"
                                 class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full p-1">
@@ -46,90 +46,65 @@
                     </div>
 
                     <!-- Modal body -->
-                    <form wire:submit.prevent="save" class="space-y-4">
-                        <!-- Job Title -->
+                    <form wire:submit.prevent="update" class="space-y-4">
+                        <!-- Name -->
                         <div>
-                            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Job Title *
+                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Name
                             </label>
                             <input type="text"
-                                    id="title"
-                                    wire:model="title"
+                                    id="name"
+                                    wire:model="name"
                                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500"
-                                    placeholder="Enter job title"
-                                    required
-                            >
-                            @error('title')
+                                    placeholder="Enter name">
+                            @error('name')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                             @enderror
                         </div>
 
-                        <!-- Company -->
+                        <!-- Email -->
                         <div>
-                            <label for="company" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Company
+                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Email
                             </label>
                             <input type="text"
-                                    id="company"
-                                    wire:model="company"
+                                    id="email"
+                                    wire:model="email"
                                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500"
-                                    placeholder="Enter company name"
-                                    required
-                            >
-                            @error('company')
+                                    placeholder="Enter email">
+                            @error('email')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                             @enderror
                         </div>
 
-                        <!-- Location -->
-                        <div>
-                            <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Location
+                        <!-- Role -->
+                        <div x-data="{ role: @entangle('role') }">
+                            <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Role
                             </label>
-                            <input type="text"
-                                    id="location"
-                                    wire:model="location"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500"
-                                    placeholder="Enter location"
-                                    required
-                            >
-                            @error('location')
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                            @enderror
+                            <select id="role"
+                                    x-model="role"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm
+                                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                        dark:bg-gray-700 dark:text-white transition-all duration-200
+                                        hover:border-gray-400 dark:hover:border-gray-500">
+                                <option value="guest">Guest</option>
+                                <option value="admin">Admin</option>
+                            </select>
                         </div>
 
-                        <!-- Description -->
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Description
-                            </label>
-                            <textarea id="description"
-                                        wire:model="description"
-                                        rows="4"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500"
-                                        placeholder="Enter job description"></textarea>
-                            @error('description')
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <!-- Submit Button -->
+                        <!-- Modal footer -->
                         <div class="flex justify-end space-x-3 pt-4">
                             <button
-                                x-transition
-                                type="button"
-                                wire:click="closeModal"
-                                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                            >
+                                    x-transition
+                                    type="button"
+                                    wire:click="closeModal"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 hover:shadow-md">
                                 Cancel
                             </button>
-                            <button
-                                type="submit"
-                                wire:loading.attr="disabled"
-                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 border border-transparent rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-                            >
-                                <span wire:loading.remove>Create Job</span>
-                                <span wire:loading>Creating...</span>
+                            <button type="submit"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 hover:shadow-md hover:scale-105">
+                                Update User
                             </button>
                         </div>
                     </form>
@@ -138,3 +113,4 @@
         </div>
     {{-- @endif --}}
 </div>
+

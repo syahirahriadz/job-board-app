@@ -93,10 +93,11 @@ class JobApply extends Component
                 'willing_to_relocate' => $this->willing_to_relocate,
             ]);
 
-            $this->dispatch('applicationSubmitted');
             $this->closeModal();
 
+            // Flash the success message and redirect to welcome page
             session()->flash('message', 'Your application has been submitted successfully!');
+            $this->redirect('/');
 
         } catch (\Exception $e) {
             session()->flash('error', 'There was an error submitting your application. Please try again.');

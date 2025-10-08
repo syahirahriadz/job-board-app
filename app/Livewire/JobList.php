@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\Collection;
 class JobList extends Component
 {
     // public Collection $jobs;
-    public $jobs = [];
+    // public $jobs = [];
     public $currentSearch = '';
+    public $perPage = 5;
 
     #[On('jobCreated')]
     public function handleJobCreated($jobId)
@@ -61,25 +62,19 @@ class JobList extends Component
         //     $this->jobs[] = array_values($this->jobs[]); // reindex array
         // }
 
+        // delete using Collection
         // $job = Job::find($jobId);
         // if ($job) {
         //     $job->delete();
-        //     $this->jobs = $this->jobs->filter(fn($j) => $j->id !== $jobId);
+        //     $this->refreshJobs();
+        //     return $this->jobs->filter(fn($j) => $j->id !== $jobId);
         // }
 
-        // Delete from database
-        if ($job = Job::find($jobId)) {
+        $job = Job::find($jobId);
+        if ($job) {
             $job->delete();
             $this->refreshJobs();
         }
-
-        // Remove from the array Alpine is entangled with
-        $this->jobs = array_values(
-            array_filter(
-                $this->jobs,                  // $this->jobs is an array of arrays
-                fn($j) => $j['id'] !== $jobId // keep all except the deleted id
-            )
-        );
     }
 
     #[On('searchUpdated')]
@@ -91,29 +86,38 @@ class JobList extends Component
 
     protected function refreshJobs()
     {
-        // if (empty($this->currentSearch)) {
-        //     $this->jobs = Job::latest()->get()->toArray();
-        // } else {
-        //     $this->jobs = Job::where('title', 'like', '%' . $this->currentSearch . '%')
-        //         ->orWhere('company', 'like', '%' . $this->currentSearch . '%')
-        //         ->orWhere('location', 'like', '%' . $this->currentSearch . '%')
-        //         ->latest()
-        //         ->get();
-        // }
-
-        $query = Job::query();
-
-        if (!empty($this->currentSearch)) {
-            $query->where('title', 'like', '%' . $this->currentSearch . '%')
+        if (empty($this->currentSearch)) {
+            return Job::latest()->paginate($this->perPage);
+        } else {
+            return Job::where('title', 'like', '%' . $this->currentSearch . '%')
                 ->orWhere('company', 'like', '%' . $this->currentSearch . '%')
-                ->orWhere('location', 'like', '%' . $this->currentSearch . '%');
+                ->orWhere('location', 'like', '%' . $this->currentSearch . '%')
+                ->latest()
+                ->paginate($this->perPage);
         }
 
-        $this->jobs = $query->latest()->get()->toArray();
+        // $query = Job::query();
+
+        // if (!empty($this->currentSearch)) {
+        //     $query->where('title', 'like', '%' . $this->currentSearch . '%')
+        //         ->orWhere('company', 'like', '%' . $this->currentSearch . '%')
+        //         ->orWhere('location', 'like', '%' . $this->currentSearch . '%');
+        // }
+
+        // $this->jobs = $query->latest()->get()->toArray();
+    }
+
+    #[On('loadMore')]
+    public function loadMore()
+    {
+        $this->perPage +=5;
     }
 
     public function render()
     {
-        return view('livewire.job-list');
+        $jobs = $this->refreshJobs();
+        return view('livewire.job-list', [
+            'jobs' => $jobs,
+        ]);
     }
 }
