@@ -3,18 +3,21 @@
 namespace App\Livewire;
 
 use App\Models\JobApplication;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
 
 class ApplicationTable extends Component
 {
     use AuthorizesRequests;
+
     public $currentSearch = '';
+
     public $statusFilter = '';
+
     public $perPage = 5;
+
     public bool $usePagination = true;
 
     #[On('applicationUpdated')]
@@ -25,7 +28,7 @@ class ApplicationTable extends Component
 
     public function viewApplication($applicationId)
     {
-        //event
+        // event
         $this->dispatch('applicationViewed', $applicationId);
     }
 
@@ -80,30 +83,40 @@ class ApplicationTable extends Component
     {
         $query = JobApplication::query();
 
-        // 🔑 Admin vs Applicant
+        // 🔑 Role-based filtering
         if (Auth::check()) {
-            if (Auth::user()->role !== 'admin') {
+            $userRole = Auth::user()->role;
+
+            if ($userRole === 'admin') {
+                // Admin → no filter, see all applications
+
+            } elseif ($userRole === 'employer') {
+                // Employer → only applications for their jobs
+                $query->whereHas('job', function ($q) {
+                    $q->where('user_id', Auth::id());
+                });
+
+            } else {
                 // Guest/Applicant → only their applications
                 $query->where('email', Auth::user()->email);
             }
-            // Admin → no filter, see all
         }
 
         // 🎯 Status filter
-        if (!empty($this->statusFilter)) {
+        if (! empty($this->statusFilter)) {
             $query->where('status', $this->statusFilter);
         }
 
         // 🔍 Search filter
-        if (!empty($this->currentSearch)) {
+        if (! empty($this->currentSearch)) {
             $query->where(function ($q) {
-                $q->where('full_name', 'like', '%' . $this->currentSearch . '%')
-                ->orWhere('email', 'like', '%' . $this->currentSearch . '%')
-                ->orWhere('phone_number', 'like', '%' . $this->currentSearch . '%');
+                $q->where('full_name', 'like', '%'.$this->currentSearch.'%')
+                    ->orWhere('email', 'like', '%'.$this->currentSearch.'%')
+                    ->orWhere('phone_number', 'like', '%'.$this->currentSearch.'%');
             })
-            ->orWhereHas('job', function ($q) {
-                $q->where('title', 'like', '%' . $this->currentSearch . '%');
-            });
+                ->orWhereHas('job', function ($q) {
+                    $q->where('title', 'like', '%'.$this->currentSearch.'%');
+                });
         }
 
         return $this->usePagination
@@ -120,6 +133,7 @@ class ApplicationTable extends Component
     public function render()
     {
         $applications = $this->refreshApplications();
+
         return view('livewire.application-table', [
             'applications' => $applications,
         ]);

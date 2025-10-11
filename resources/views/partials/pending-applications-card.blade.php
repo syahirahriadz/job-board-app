@@ -7,7 +7,11 @@
     <!-- Header Row: Title + Icon -->
     <div class="flex items-center justify-between">
         <h3 class="text-xl font-medium text-gray-500 dark:text-gray-400">
-            Pending Applications
+            @if(auth()->user()->isEmployer())
+                New Applications
+            @else
+                Pending Applications
+            @endif
         </h3>
         <div class="p-2 rounded-md bg-yellow-100 dark:bg-yellow-900">
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -22,7 +26,11 @@
     <!-- Middle Content -->
     <div>
         <p class="mt-3 text-6xl font-extrabold text-yellow-600 dark:text-yellow-400">
-            {{ $pendingApplications }}
+            @if(auth()->user()->isEmployer())
+                {{ $newApplications }}
+            @else
+                {{ $pendingApplications }}
+            @endif
         </p>
         <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
             Awaiting review

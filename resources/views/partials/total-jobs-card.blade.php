@@ -7,7 +7,13 @@
     <!-- Header Row: Title + Icon -->
     <div class="flex items-center justify-between">
         <h3 class="text-xl font-medium text-gray-500 dark:text-gray-400">
-            Total Jobs
+            @if(auth()->user()->isAdmin())
+                Total Jobs
+            @elseif(auth()->user()->isEmployer())
+                Your Posted Jobs
+            @else
+                Total Jobs
+            @endif
         </h3>
         <div class="p-2 rounded-md bg-blue-100 dark:bg-blue-900">
             <svg xmlns="http://www.w3.org/2000/svg"

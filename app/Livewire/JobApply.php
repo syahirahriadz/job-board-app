@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Job;
 use App\Models\JobApplication;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -14,6 +15,7 @@ class JobApply extends Component
     use WithFileUploads;
 
     public $showModal = false;
+
     public ?Job $job = null;
 
     // Personal Information
@@ -79,6 +81,7 @@ class JobApply extends Component
             // Create the job application
             JobApplication::create([
                 'job_id' => $this->job->id,
+                'user_id' => Auth::id(), // Set user_id if user is authenticated, null otherwise
                 'full_name' => $this->full_name,
                 'email' => $this->email,
                 'phone_number' => $this->phone_number,

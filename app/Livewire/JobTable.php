@@ -3,14 +3,19 @@
 namespace App\Livewire;
 
 use App\Models\Job;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Illuminate\Database\Eloquent\Collection;
 
 class JobTable extends Component
 {
+    use AuthorizesRequests;
+
     public $currentSearch = '';
+
     public $perPage = 5;
+
     public bool $usePagination = true;
 
     #[On('jobCreated')]
@@ -19,7 +24,7 @@ class JobTable extends Component
         $this->refreshJobs();
     }
 
-     #[On('jobUpdated')]
+    #[On('jobUpdated')]
     public function handleJobUpdated()
     {
         $this->refreshJobs();
@@ -33,7 +38,7 @@ class JobTable extends Component
 
     public function createJob()
     {
-        //event
+        // event
         $this->dispatch('openJobCreate');
     }
 
@@ -42,10 +47,9 @@ class JobTable extends Component
         $this->dispatch('editJob', $jobId);
     }
 
-    //to load all job
     public function mount()
     {
-        // $this->refreshJobs();
+        // Disable pagination if not on index route
         $this->usePagination = ! request()->routeIs('jobs.index');
     }
 
@@ -67,22 +71,25 @@ class JobTable extends Component
 
     protected function refreshJobs()
     {
-        // if (empty($this->currentSearch)) {
-        //     return Job::latest()->paginate($this->perPage);
-        // } else {
-        //     return Job::where('title', 'like', '%' . $this->currentSearch . '%')
-        //         ->orWhere('company', 'like', '%' . $this->currentSearch . '%')
-        //         ->orWhere('location', 'like', '%' . $this->currentSearch . '%')
-        //         ->latest()
-        //         ->paginate($this->perPage);
-        // }
-        $query = Job::query();
+        $query = Job::query()->withCount('jobApplications');
 
-        if (!empty($this->currentSearch)) {
+        // 🔑 Role-based filtering (similar to ApplicationTable pattern)
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role === 'employer') {
+                // Employers → only their jobs
+                $query->where('user_id', $user->id);
+            }
+            // Admin → no filter, see all jobs
+            // Job seekers → see all jobs (they can browse all available jobs)
+        }
+
+        // 🔍 Search filter
+        if (! empty($this->currentSearch)) {
             $query->where(function ($q) {
-                $q->where('title', 'like', '%' . $this->currentSearch . '%')
-                ->orWhere('company', 'like', '%' . $this->currentSearch . '%')
-                ->orWhere('location', 'like', '%' . $this->currentSearch . '%');
+                $q->where('title', 'like', '%'.$this->currentSearch.'%')
+                    ->orWhere('company', 'like', '%'.$this->currentSearch.'%')
+                    ->orWhere('location', 'like', '%'.$this->currentSearch.'%');
             });
         }
 
@@ -94,12 +101,13 @@ class JobTable extends Component
     #[On('loadMore')]
     public function loadMore()
     {
-        $this->perPage +=5;
+        $this->perPage += 5;
     }
 
     public function render()
     {
         $jobs = $this->refreshJobs();
+
         return view('livewire.job-table', [
             'jobs' => $jobs,
         ]);

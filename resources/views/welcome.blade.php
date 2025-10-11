@@ -87,9 +87,11 @@
                                     Setting
                                 </a>
 
-                                <a href="{{ route('applications.index') }}" wire:navigate class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-gray-50 focus-visible:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    Job Applied
-                                </a>
+                                @can('viewOwnApplications', \App\Models\JobApplication::class)
+                                    <a href="{{ route('applications.index') }}" wire:navigate class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-gray-50 focus-visible:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        Job Applied
+                                    </a>
+                                @endcan
 
                                 <form wire:ignore method="POST" action="{{ route('logout') }}">
                                     @csrf

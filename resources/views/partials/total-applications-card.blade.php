@@ -7,7 +7,13 @@
     <!-- Header Row: Title + Icon -->
     <div class="flex items-center justify-between">
         <h3 class="text-xl font-medium text-gray-500 dark:text-gray-400">
-            {{ auth()->user()->role === 'admin' ? 'Total Applications' : 'Your Applications' }}
+            @if(auth()->user()->isAdmin())
+                Total Applications
+            @elseif(auth()->user()->isEmployer())
+                Applications Received
+            @else
+                Your Applications
+            @endif
         </h3>
         <div class="p-2 rounded-md bg-purple-100 dark:bg-purple-900">
             <svg xmlns="http://www.w3.org/2000/svg"

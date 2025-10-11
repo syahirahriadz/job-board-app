@@ -3,14 +3,14 @@
 namespace App\Livewire;
 
 use App\Models\Job;
-use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
-
+use Livewire\Component;
 
 class JobCreated extends Component
 {
-    //properties
+    // properties
     #[Validate('required|string|max:255')]
     public $title = '';
 
@@ -25,7 +25,7 @@ class JobCreated extends Component
 
     public $showModal = false;
 
-    //method
+    // method
 
     #[On('openJobCreate')]
     public function openModal()
@@ -43,6 +43,7 @@ class JobCreated extends Component
             'company' => $this->company,
             'location' => $this->location,
             'description' => $this->description,
+            'user_id' => Auth::id(),
         ]);
 
         // $this->dispatch('jobCreated', job: [

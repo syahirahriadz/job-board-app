@@ -2,20 +2,36 @@
     <!-- Outer card: add padding all around -->
     <div class="rounded-lg border border-gray-200 dark:border-neutral-700 p-6">
 
-        <!-- Header section OUTSIDE the border -->
+        <!-- Header + Search -->
         <div class="mb-6">
-            <!-- Top row: heading + description -->
-            <div>
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                    Latest User
-                </h2>
-                <p class="mt-1 text-sm text-gray-500 mb-5">
-                    Browse a list of user information such as name, email &amp; role.
-                </p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                        Latest User
+                    </h2>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Browse a list of user information such as name, email &amp; role.
+                    </p>
+                </div>
+
+                @can('create', App\Models\User::class)
+                    <!-- Add New User Button -->
+                    <button
+                        wire:click="createUser()"
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        Create User
+                    </button>
+                @endcan
             </div>
 
-            <!-- Second row: search box aligned right -->
-            <livewire:user-search />
+            <div class="mt-5">
+                <!-- Search box aligned right -->
+                <livewire:user-search />
+            </div>
         </div>
 
         <!-- Table box -->
@@ -68,5 +84,6 @@
         </div>
 
         <livewire:user-edit />
+        <livewire:user-create />
     </div>
 </section>

@@ -9,6 +9,7 @@ class JobApplication extends Model
 {
     protected $fillable = [
         'job_id',
+        'user_id',
         'full_name',
         'email',
         'phone_number',
@@ -42,7 +43,7 @@ class JobApplication extends Model
      */
     public function getStatusColor(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'approved' => 'green',
             'rejected' => 'red',
             default => 'gray'

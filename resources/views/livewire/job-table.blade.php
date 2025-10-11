@@ -37,23 +37,39 @@
 
         <!-- Table (no outer border now, just header row divider) -->
         <div class="overflow-x-auto">
-            <table class="min-w-full">
+            <table class="min-w-full table-fixed">
+                <colgroup>
+                    <col class="w-[30%]"> <!-- Title -->
+                    <col class="w-[25%]"> <!-- Company & Location -->
+                    <col class="w-[15%]"> <!-- Applications -->
+                    <col class="w-[15%]"> <!-- Posted -->
+                    <col class="w-[15%]"> <!-- Actions -->
+                </colgroup>
                 <thead class="bg-gray-50 dark:bg-neutral-800">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Title</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Company</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Location</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Posted</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Company</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Applications</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Posted</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($jobs as $job)
+                    @forelse ($jobs as $job)
                         <tr class="border-b border-gray-200 dark:border-neutral-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
-                            <td class="px-6 py-4 font-medium text-gray-900">{{ $job->title }}</td>
-                            <td class="px-6 py-4 text-gray-700">{{ $job->company }}</td>
-                            <td class="px-6 py-4 text-gray-700">{{ $job->location }}</td>
-                            <td class="px-6 py-4 text-gray-700">{{ $job->created_at->format('M d, Y') }}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-100">{{ $job->title }}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="font-medium text-gray-900 dark:text-gray-100">{{ $job->company }}</span>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ $job->location }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                                    {{ $job->job_applications_count ?? 0 }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $job->created_at->format('M d, Y') }}</td>
                             <td class="px-6 py-4 flex space-x-2">
                                 @can('update', $job)
                                     <button
@@ -73,13 +89,45 @@
                                         onclick="return confirm('Are you sure you want to delete this job listing?')"
                                         class="p-2 rounded-full hover:bg-gray-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="size-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244 2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                         </svg>
                                     </button>
                                 @endcan
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center justify-center space-y-3">
+                                    <svg class="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-8 0V6a2 2 0 00-2 2v6.172a2 2 0 00.586 1.414L8 18h8l1.414-1.414A2 2 0 0018 15.172V8a2 2 0 00-2-2z"/>
+                                    </svg>
+                                    <div class="text-center">
+                                        <p class="text-gray-500 dark:text-gray-400 text-base font-medium">No jobs found</p>
+                                        <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                                            @if(!empty($currentSearch))
+                                                Try adjusting your search criteria
+                                            @else
+                                                Get started by creating your first job posting
+                                            @endif
+                                        </p>
+                                    </div>
+                                    @can('create', \App\Models\Job::class)
+                                        @if(empty($currentSearch))
+                                            <button
+                                                wire:click="createJob()"
+                                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition mt-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                </svg>
+                                                Create First Job
+                                            </button>
+                                        @endif
+                                    @endcan
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

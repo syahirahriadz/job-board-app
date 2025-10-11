@@ -4,25 +4,31 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen flex bg-white dark:bg-zinc-800">
-        <flux:sidebar stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+        <flux:sidebar stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 flex flex-col">
+            <div class="flex-1 flex flex-col">
+                <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-            <a href="{{ route('home') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
-                <x-app-logo />
-            </a>
+                <a href="{{ route('home') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
+                    <x-app-logo />
+                </a>
 
-            <flux:navlist variant="outline">
-                <flux:navlist.group :heading="__('Platform')" class="grid">
-                    <flux:navlist.item icon="chart-bar-square" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                    @can('is-admin')
-                        <flux:navlist.item icon="briefcase" :href="route('jobs.index')" :current="request()->routeIs('jobs.index')" wire:navigate>{{ __('Jobs') }}</flux:navlist.item>
-                        <flux:navlist.item icon="user" :href="route('users.index')" :current="request()->routeIs('users.index')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
-                    @endcan
-                    <flux:navlist.item icon="document-text" :href="route('applications.index')" :current="request()->routeIs('applications.index')" wire:navigate>{{ __('Applications') }}</flux:navlist.item>
-                </flux:navlist.group>
-            </flux:navlist>
+                <flux:navlist variant="outline">
+                    <flux:navlist.group :heading="__('Platform')" class="grid">
+                        <flux:navlist.item icon="chart-bar-square" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                        @can('viewAny', \App\Models\Job::class)
+                            <flux:navlist.item icon="briefcase" :href="route('jobs.index')" :current="request()->routeIs('jobs.index')" wire:navigate>{{ __('Jobs') }}</flux:navlist.item>
+                        @endcan
+                        @can('viewAny', \App\Models\User::class)
+                            <flux:navlist.item icon="user" :href="route('users.index')" :current="request()->routeIs('users.index')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
+                        @endcan
+                        @can('viewAny', \App\Models\JobApplication::class)
+                            <flux:navlist.item icon="document-text" :href="route('applications.index')" :current="request()->routeIs('applications.index')" wire:navigate>{{ __('Applications') }}</flux:navlist.item>
+                        @endcan
+                    </flux:navlist.group>
+                </flux:navlist>
 
-            <flux:spacer />
+                <flux:spacer />
+            </div>
 
             {{-- <flux:navlist variant="outline">
                 <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
@@ -34,9 +40,9 @@
                 </flux:navlist.item>
             </flux:navlist> --}}
 
-            <!-- Desktop User Menu -->
-            <div class="mt-auto">
-                <flux:dropdown class="hidden lg:block" position="bottom" align="start">
+            <!-- Desktop User Menu - Sticky to bottom -->
+            <div class="sticky bottom-0 bg-zinc-50 dark:bg-zinc-900 p-4">
+                <flux:dropdown class="hidden lg:block" position="top" align="start">
                     <flux:profile
                         :name="auth()->user()->name"
                         :initials="auth()->user()->initials()"

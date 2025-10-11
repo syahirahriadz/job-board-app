@@ -12,11 +12,8 @@ class JobListPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->role === 'admin') {
-            return true;
-        } else {
-            return false;
-        }
+        // Admin and employers can view jobs
+        return $user->isAdmin() || $user->isEmployer();
     }
 
     /**
@@ -24,11 +21,17 @@ class JobListPolicy
      */
     public function view(User $user, Job $job): bool
     {
-        if ($user->role === 'admin') {
+        // Admin can view any job
+        if ($user->isAdmin()) {
             return true;
-        } else {
-            return false;
         }
+
+        // Employer can view their own jobs
+        if ($user->isEmployer()) {
+            return $job->user_id === $user->id;
+        }
+
+        return false;
     }
 
     /**
@@ -36,12 +39,8 @@ class JobListPolicy
      */
     public function create(User $user): bool
     {
-        // return Auth::user()->id !== null;
-        if ($user->role === 'admin') {
-            return true;
-        } else {
-            return false;
-        }
+        // Both admin and employers can create jobs
+        return $user->isAdmin() || $user->isEmployer();
     }
 
     /**
@@ -49,12 +48,17 @@ class JobListPolicy
      */
     public function update(User $user, Job $job): bool
     {
-        // Admin can update any post
-        if ($user->role === 'admin') {
+        // Admin can update any job
+        if ($user->isAdmin()) {
             return true;
-        } else {
-            return false;
         }
+
+        // Employer can update their own jobs
+        if ($user->isEmployer()) {
+            return $job->user_id === $user->id;
+        }
+
+        return false;
     }
 
     /**
@@ -62,12 +66,17 @@ class JobListPolicy
      */
     public function delete(User $user, Job $job): bool
     {
-        // Admin can delete any post
-        if ($user->role === 'admin') {
+        // Admin can delete any job
+        if ($user->isAdmin()) {
             return true;
-        } else {
-            return false;
         }
+
+        // Employer can delete their own jobs
+        if ($user->isEmployer()) {
+            return $job->user_id === $user->id;
+        }
+
+        return false;
     }
 
     /**
@@ -101,12 +110,17 @@ class JobListPolicy
      */
     public function manage(User $user): bool
     {
-        // Only admins can access post management features
-        if ($user->role === 'admin') {
-            return true;
-        } else {
-            return false;
-        }
+        // Both admin and employers can manage jobs
+        return $user->isAdmin() || $user->isEmployer();
+    }
+
+    /**
+     * Determine whether the user can manage their jobs (employer dashboard)
+     */
+    public function manageJobs(User $user): bool
+    {
+        // Both admin and employers can manage jobs
+        return $user->isAdmin() || $user->isEmployer();
     }
 
     /**
@@ -114,14 +128,16 @@ class JobListPolicy
      */
     public function publish(User $user, Job $job): bool
     {
-        // Admin can publish/unpublish any post
-        if ($user->role === 'admin') {
+        // Admin can publish/unpublish any job
+        if ($user->isAdmin()) {
             return true;
-        } else {
-            return false;
         }
 
-        // Authors can publish/unpublish their own posts
-        // return $user->hasRole('author') && $post->user_id === $user->id;
+        // Employer can publish/unpublish their own jobs
+        if ($user->isEmployer()) {
+            return $job->user_id === $user->id;
+        }
+
+        return false;
     }
 }

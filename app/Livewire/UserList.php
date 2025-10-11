@@ -3,21 +3,33 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Database\Eloquent\Collection;
 
 class UserList extends Component
 {
     use AuthorizesRequests;
+
     public $currentSearch = '';
+
     public $perPage = 5;
+
     public bool $usePagination = true;
 
-     #[On('userUpdated')]
+    public function createUser()
+    {
+        $this->authorize('create', User::class);
+        $this->dispatch('showCreateModal');
+    }
+
+    #[On('userCreated')]
+    public function handleUserCreated()
+    {
+        $this->refreshUsers();
+    }
+
+    #[On('userUpdated')]
     public function handleUserUpdated()
     {
         $this->refreshUsers();
@@ -67,11 +79,11 @@ class UserList extends Component
 
         $query = User::query();
 
-        if (!empty($this->currentSearch)) {
+        if (! empty($this->currentSearch)) {
             $query->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->currentSearch . '%')
-                ->orWhere('email', 'like', '%' . $this->currentSearch . '%')
-                ->orWhere('role', 'like', '%' . $this->currentSearch . '%');
+                $q->where('name', 'like', '%'.$this->currentSearch.'%')
+                    ->orWhere('email', 'like', '%'.$this->currentSearch.'%')
+                    ->orWhere('role', 'like', '%'.$this->currentSearch.'%');
             });
         }
 
@@ -83,12 +95,13 @@ class UserList extends Component
     #[On('loadMore')]
     public function loadMore()
     {
-        $this->perPage +=5;
+        $this->perPage += 5;
     }
 
     public function render()
     {
         $users = $this->refreshUsers();
+
         return view('livewire.user-list', [
             'users' => $users,
         ]);
