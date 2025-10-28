@@ -3,15 +3,16 @@
 namespace App\Livewire;
 
 use App\Models\Job;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Illuminate\Database\Eloquent\Collection;
 
 class JobList extends Component
 {
     // public Collection $jobs;
     // public $jobs = [];
     public $currentSearch = '';
+
     public $perPage = 5;
 
     #[On('jobCreated')]
@@ -28,7 +29,7 @@ class JobList extends Component
 
     }
 
-     #[On('jobUpdated')]
+    #[On('jobUpdated')]
     public function handleJobUpdated()
     {
         // $this->jobs = Job::all()->toArray();
@@ -37,7 +38,7 @@ class JobList extends Component
 
     public function viewJob($jobId)
     {
-        //event
+        // event
         $this->dispatch('jobViewed', $jobId);
     }
 
@@ -46,7 +47,7 @@ class JobList extends Component
         $this->dispatch('editJob', $jobId);
     }
 
-    //to load all job
+    // to load all job
     public function mount()
     {
         // $this->jobs = Job::all()->toArray();
@@ -55,7 +56,7 @@ class JobList extends Component
 
     public function deleteJob($jobId)
     {
-        //check if job available
+        // check if job available
         // if (isset($this->jobs[$jobId])){
 
         //     unset($this->jobs[$jobId]);       // remove job by index
@@ -87,11 +88,14 @@ class JobList extends Component
     protected function refreshJobs()
     {
         if (empty($this->currentSearch)) {
-            return Job::latest()->paginate($this->perPage);
+            return Job::where('is_published', true)->latest()->paginate($this->perPage);
         } else {
-            return Job::where('title', 'like', '%' . $this->currentSearch . '%')
-                ->orWhere('company', 'like', '%' . $this->currentSearch . '%')
-                ->orWhere('location', 'like', '%' . $this->currentSearch . '%')
+            return Job::where('is_published', true)
+                ->where(function ($query) {
+                    $query->where('title', 'like', '%'.$this->currentSearch.'%')
+                        ->orWhere('company', 'like', '%'.$this->currentSearch.'%')
+                        ->orWhere('location', 'like', '%'.$this->currentSearch.'%');
+                })
                 ->latest()
                 ->paginate($this->perPage);
         }
@@ -110,12 +114,13 @@ class JobList extends Component
     #[On('loadMore')]
     public function loadMore()
     {
-        $this->perPage +=5;
+        $this->perPage += 5;
     }
 
     public function render()
     {
         $jobs = $this->refreshJobs();
+
         return view('livewire.job-list', [
             'jobs' => $jobs,
         ]);

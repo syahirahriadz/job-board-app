@@ -123,4 +123,49 @@ class JobApplicationPolicy
         // Employer can update status for their own job applications
         return $user->role === 'employer' && $application->job->user_id === $user->id;
     }
+
+    /**
+     * Determine if the user can view total applications dashboard card
+     */
+    public function viewTotalApplicationsCard(User $user): bool
+    {
+        // Admin can view all applications count, guests can view their own applications count
+        return $user->isAdmin() || $user->isGuest();
+    }
+
+    /**
+     * Determine if the user can view approved applications dashboard card
+     */
+    public function viewApprovedApplicationsCard(User $user): bool
+    {
+        // Only guests can view their approved applications
+        return $user->isGuest();
+    }
+
+    /**
+     * Determine if the user can view all applications (admin view)
+     */
+    public function viewAllApplications(User $user): bool
+    {
+        // Only admins can view all applications
+        return $user->isAdmin();
+    }
+
+    /**
+     * Determine if the user can view applications for their jobs (employer view)
+     */
+    public function viewEmployerApplications(User $user): bool
+    {
+        // Only employers can view applications for their jobs
+        return $user->isEmployer();
+    }
+
+    /**
+     * Determine if the user can view only their own applications (guest view)
+     */
+    public function viewUserApplications(User $user): bool
+    {
+        // Only guests can view their own applications
+        return $user->isGuest();
+    }
 }

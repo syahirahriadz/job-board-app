@@ -23,6 +23,7 @@ class DashboardController extends Controller
             // Admin sees everything
             $data['totalJobs'] = Job::count();
             $data['totalUsers'] = User::count();
+            $data['pendingPaymentJobs'] = Job::where('is_published', false)->count();
             $data['totalApplications'] = JobApplication::count();
             $data['newApplications'] = JobApplication::where('status', 'pending')->count();
             $data['pendingApplications'] = JobApplication::where('status', 'pending')->count();
@@ -31,6 +32,7 @@ class DashboardController extends Controller
         } elseif ($user->isEmployer()) {
             // Employer sees their own jobs and related applications
             $data['totalJobs'] = Job::where('user_id', $user->id)->count();
+            $data['pendingPaymentJobs'] = Job::where('user_id', $user->id)->where('is_published', false)->count();
             $data['totalApplications'] = JobApplication::whereHas('job', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->count();

@@ -29,7 +29,110 @@
                 @endcan
             </div>
 
-            <div class="mt-5">
+            <!-- Flash Message -->
+            @if(session('job_created_unpaid'))
+                <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-sm text-yellow-800">{{ session('job_created_unpaid') }}</p>
+                        </div>
+                        <a href="{{ route('checkout', session('pending_job_id')) }}" class="ml-4 inline-flex items-center px-3 py-1 bg-yellow-600 text-white text-sm font-medium rounded hover:bg-yellow-700 transition">
+                            Complete Payment
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Show general message if there are unpublished jobs -->
+            @if(Auth::user()->role === 'employer' && $pendingJobsCount > 0 && !session('job_created_unpaid'))
+                <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-sm text-yellow-800">
+                                You have {{ $pendingJobsCount }} unpublished job(s). Complete payment to publish them.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Payment Success/Error Messages -->
+            @if(session('success'))
+                <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <p class="text-sm text-green-800">{{ session('success') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
+                        <p class="text-sm text-red-800">{{ session('error') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('warning'))
+                <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <p class="text-sm text-yellow-800">{{ session('warning') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            <div class="mt-5 space-y-4">
+                <!-- Filter buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button
+                        wire:click="setStatusFilter('all')"
+                        class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition {{ $statusFilter === 'all' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-600' }}">
+                        All Jobs
+                        <span class="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full {{ $statusFilter === 'all' ? 'bg-blue-200 text-blue-800 dark:bg-blue-800 dark:text-blue-200' : 'bg-gray-200 text-gray-600 dark:bg-neutral-600 dark:text-gray-300' }}">
+                            {{ $totalJobsCount }}
+                        </span>
+                    </button>
+
+                    <button
+                        wire:click="setStatusFilter('published')"
+                        class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition {{ $statusFilter === 'published' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-600' }}">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Published
+                        <span class="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full {{ $statusFilter === 'published' ? 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200' : 'bg-gray-200 text-gray-600 dark:bg-neutral-600 dark:text-gray-300' }}">
+                            {{ $publishedJobsCount }}
+                        </span>
+                    </button>
+
+                    <button
+                        wire:click="setStatusFilter('pending')"
+                        class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition {{ $statusFilter === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-600' }}">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        Pending Payment
+                        <span class="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full {{ $statusFilter === 'pending' ? 'bg-yellow-200 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200' : 'bg-gray-200 text-gray-600 dark:bg-neutral-600 dark:text-gray-300' }}">
+                            {{ $pendingJobsCount }}
+                        </span>
+                    </button>
+                </div>
+
                 <!-- Search box aligned right -->
                 <livewire:job-search />
             </div>
@@ -39,17 +142,19 @@
         <div class="overflow-x-auto">
             <table class="min-w-full table-fixed">
                 <colgroup>
-                    <col class="w-[30%]"> <!-- Title -->
-                    <col class="w-[25%]"> <!-- Company & Location -->
-                    <col class="w-[15%]"> <!-- Applications -->
-                    <col class="w-[15%]"> <!-- Posted -->
-                    <col class="w-[15%]"> <!-- Actions -->
+                    <col class="w-[25%]"> <!-- Title -->
+                    <col class="w-[20%]"> <!-- Company & Location -->
+                    <col class="w-[12%]"> <!-- Applications -->
+                    <col class="w-[12%]"> <!-- Status -->
+                    <col class="w-[13%]"> <!-- Posted -->
+                    <col class="w-[18%]"> <!-- Actions -->
                 </colgroup>
                 <thead class="bg-gray-50 dark:bg-neutral-800">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Title</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Company</th>
                         <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Applications</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Posted</th>
                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
@@ -69,15 +174,40 @@
                                     {{ $job->job_applications_count ?? 0 }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4 text-center">
+                                @if($job->is_published)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Published
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Pending Payment
+                                    </span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $job->created_at->format('M d, Y') }}</td>
-                            <td class="px-6 py-4 flex space-x-2">
+                            <td class="px-6 py-4 flex items-center space-x-2">
+                                <!-- Pay Now button for unpublished jobs -->
+                                @can('makePayment', $job)
+                                    <a href="{{ route('checkout', $job->id) }}"
+                                       onclick="return confirm('You will be redirected to Stripe for secure payment. After successful payment, your job will be published. Continue?')"
+                                       class="inline-flex items-center px-3 py-1.5 bg-green-600 text-center text-white text-xs font-medium rounded hover:bg-green-700 transition">
+                                        Pay Now
+                                    </a>
+                                @endcan
                                 @can('update', $job)
                                     <button
                                         wire:click="editJob({{$job->id}})"
                                         x-transition
-                                        class="p-2 rounded-full hover:bg-gray-100"
+                                        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
                                         title="Edit job">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="blue" class="size-6">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                         </svg>
                                     </button>
@@ -87,8 +217,8 @@
                                         type="button"
                                         wire:click="deleteJob({{ $job->id }})"
                                         onclick="return confirm('Are you sure you want to delete this job listing?')"
-                                        class="p-2 rounded-full hover:bg-gray-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="size-6">
+                                        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-red-600">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244 2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                         </svg>
                                     </button>
@@ -97,16 +227,28 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
+                            <td colspan="6" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center justify-center space-y-3">
                                     <svg class="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-8 0V6a2 2 0 00-2 2v6.172a2 2 0 00.586 1.414L8 18h8l1.414-1.414A2 2 0 0018 15.172V8a2 2 0 00-2-2z"/>
                                     </svg>
                                     <div class="text-center">
-                                        <p class="text-gray-500 dark:text-gray-400 text-base font-medium">No jobs found</p>
+                                        <p class="text-gray-500 dark:text-gray-400 text-base font-medium">
+                                            @if($statusFilter === 'published')
+                                                No published jobs found
+                                            @elseif($statusFilter === 'pending')
+                                                No jobs pending payment
+                                            @else
+                                                No jobs found
+                                            @endif
+                                        </p>
                                         <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
                                             @if(!empty($currentSearch))
-                                                Try adjusting your search criteria
+                                                Try adjusting your search criteria or filter
+                                            @elseif($statusFilter === 'published')
+                                                Complete payment for your pending jobs to see them here
+                                            @elseif($statusFilter === 'pending')
+                                                All your jobs have been published
                                             @else
                                                 Get started by creating your first job posting
                                             @endif

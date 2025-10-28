@@ -38,26 +38,25 @@ class JobCreated extends Component
     {
         $this->validate();
 
+        // Always create unpublished job first - employers must pay for each job individually
         $job = Job::create([
             'title' => $this->title,
             'company' => $this->company,
             'location' => $this->location,
             'description' => $this->description,
             'user_id' => Auth::id(),
+            'is_published' => false, // Always start as unpublished
         ]);
 
-        // $this->dispatch('jobCreated', job: [
-        //     'title' => $this->title,
-        //     'company' => $this->company,
-        //     'location' => $this->location,
-        //     'description' => $this->description,
-        // ]);
+        // Store job ID in session for after payment
+        session(['pending_job_id' => $job->id]);
 
         $this->dispatch('jobCreated', $job->id);
-
-        // Reset fields and close modal
-        // $this->reset(['title', 'company', 'location', 'description']);
         $this->closeModal();
+
+        // Show success message and redirect to payment
+        session()->flash('job_created_unpaid', 'Job created successfully! Please complete payment to publish your job listing.');
+        $this->dispatch('redirect-to-checkout');
     }
 
     public function closeModal()

@@ -140,4 +140,44 @@ class JobListPolicy
 
         return false;
     }
+
+    /**
+     * Determine whether the user can make payment for a job.
+     */
+    public function makePayment(User $user, Job $job): bool
+    {
+        // Only employers can make payment for their own unpublished jobs
+        if ($user->isEmployer() && $job->user_id === $user->id && ! $job->is_published) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can view job-related dashboard cards.
+     */
+    public function viewDashboardCards(User $user): bool
+    {
+        // Admin and employers can view job-related dashboard cards
+        return $user->isAdmin() || $user->isEmployer();
+    }
+
+    /**
+     * Determine whether the user can view all jobs (admin view).
+     */
+    public function viewAllJobs(User $user): bool
+    {
+        // Only admins can view all jobs
+        return $user->isAdmin();
+    }
+
+    /**
+     * Determine whether the user can view only their own jobs (employer view).
+     */
+    public function viewOwnJobs(User $user): bool
+    {
+        // Only employers can view their own jobs (not admins, they use viewAllJobs)
+        return $user->isEmployer();
+    }
 }

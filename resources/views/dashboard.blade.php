@@ -2,9 +2,14 @@
     <div class="h-full w-full flex-1 flex-col gap-4 rounded-lg">
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">
             {{-- Job Cards (visible to admins and employers) --}}
-            @if(auth()->user()->isAdmin() || auth()->user()->isEmployer())
+            @can('viewDashboardCards', \App\Models\Job::class)
                 @include('partials.total-jobs-card')
-            @endif
+            @endcan
+
+            {{-- Pending Payment Card (visible to admins and employers) --}}
+            @can('viewDashboardCards', \App\Models\Job::class)
+                @include('partials.jobs-pending-payment-card')
+            @endcan
 
             {{-- Admin Only Cards --}}
             @can('viewAny', \App\Models\User::class)
@@ -13,24 +18,27 @@
 
             {{-- Application Cards (visible to all authenticated users based on their role) --}}
             @can('viewAny', \App\Models\JobApplication::class)
-                @include('partials.total-applications-card')
+                @can('viewTotalApplicationsCard', \App\Models\JobApplication::class)
+                    @include('partials.total-applications-card')
+                @endcan
+
                 @include('partials.pending-applications-card')
 
-                @if(auth()->user()->isGuest())
+                @can('viewApprovedApplicationsCard', \App\Models\JobApplication::class)
                     @include('partials.approved-applications-card')
-                @endif
+                @endcan
             @endcan
         </div>
 
         <div class="space-y-8 mt-4">
             {{-- Job Tables (Admin sees all jobs, Employer sees only their jobs) --}}
-            @if(auth()->user()->isAdmin() || auth()->user()->isEmployer())
-                @if(auth()->user()->isAdmin())
-                    <livewire:job-table :use-pagination="true"/>
-                @else
-                    <livewire:job-table :use-pagination="true" :employer-only="true"/>
-                @endif
-            @endif
+            @can('viewAllJobs', \App\Models\Job::class)
+                <livewire:job-table :use-pagination="true"/>
+            @endcan
+
+            @can('viewOwnJobs', \App\Models\Job::class)
+                <livewire:job-table :use-pagination="true" :employer-only="true"/>
+            @endcan
 
             {{-- Admin Only Tables --}}
             @can('viewAny', \App\Models\User::class)
@@ -38,14 +46,16 @@
             @endcan
 
             {{-- Application Tables (visible to all authenticated users based on their role) --}}
-            @can('viewAny', \App\Models\JobApplication::class)
-                @if(auth()->user()->isAdmin())
-                    <livewire:application-table :use-pagination="true"/>
-                @elseif(auth()->user()->isEmployer())
-                    <livewire:application-table :use-pagination="true" :employer-only="true"/>
-                @else
-                    <livewire:application-table :use-pagination="true" :user-only="true"/>
-                @endif
+            @can('viewAllApplications', \App\Models\JobApplication::class)
+                <livewire:application-table :use-pagination="true"/>
+            @endcan
+
+            @can('viewEmployerApplications', \App\Models\JobApplication::class)
+                <livewire:application-table :use-pagination="true" :employer-only="true"/>
+            @endcan
+
+            @can('viewUserApplications', \App\Models\JobApplication::class)
+                <livewire:application-table :use-pagination="true" :user-only="true"/>
             @endcan
         </div>
     </div>

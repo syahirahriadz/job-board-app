@@ -18,19 +18,45 @@ class JobTable extends Component
 
     public bool $usePagination = true;
 
+    public $statusFilter = 'all'; // 'all', 'published', 'pending'
+
     #[On('jobCreated')]
     public function handleJobCreated($jobId)
     {
-        $this->refreshJobs();
+        // Component will auto-refresh
     }
 
     #[On('jobUpdated')]
     public function handleJobUpdated()
     {
-        $this->refreshJobs();
+        // Component will auto-refresh
     }
 
-    // public function viewJob($jobId)
+    #[On('paymentCompleted')]
+    public function handlePaymentCompleted()
+    {
+        // Component will auto-refresh
+    }
+
+    #[On('redirect-to-checkout')]
+    public function redirectToCheckout()
+    {
+        // Get the pending job ID from session
+        $pendingJobId = session('pending_job_id');
+
+        if ($pendingJobId) {
+            return redirect()->route('checkout', $pendingJobId);
+        }
+
+        // Fallback to checkout without job ID
+        return redirect()->route('checkout');
+    }
+
+    public function refreshJobTable()
+    {
+        // Force refresh of the component
+        $this->dispatch('$refresh');
+    }    // public function viewJob($jobId)
     // {
     //     //event
     //     $this->dispatch('jobViewed', $jobId);
@@ -51,6 +77,14 @@ class JobTable extends Component
     {
         // Disable pagination if not on index route
         $this->usePagination = ! request()->routeIs('jobs.index');
+
+        // Check for filter parameter in URL
+        if (request()->has('filter')) {
+            $filter = request()->get('filter');
+            if (in_array($filter, ['all', 'published', 'pending'])) {
+                $this->statusFilter = $filter;
+            }
+        }
     }
 
     public function deleteJob($jobId)
@@ -58,7 +92,6 @@ class JobTable extends Component
         $job = Job::find($jobId);
         if ($job) {
             $job->delete();
-            $this->refreshJobs();
         }
     }
 
@@ -66,10 +99,32 @@ class JobTable extends Component
     public function handleSearchUpdated($search)
     {
         $this->currentSearch = $search;
-        $this->refreshJobs();
     }
 
-    protected function refreshJobs()
+    public function setStatusFilter($filter)
+    {
+        $this->statusFilter = $filter;
+    }
+
+    #[On('loadMore')]
+    public function loadMore()
+    {
+        $this->perPage += 5;
+    }
+
+    public function render()
+    {
+        $jobs = $this->getJobs();
+
+        return view('livewire.job-table', [
+            'jobs' => $jobs,
+            'totalJobsCount' => $this->getTotalJobsCount(),
+            'publishedJobsCount' => $this->getPublishedJobsCount(),
+            'pendingJobsCount' => $this->getPendingJobsCount(),
+        ]);
+    }
+
+    protected function getJobs()
     {
         $query = Job::query()->withCount('jobApplications');
 
@@ -93,23 +148,62 @@ class JobTable extends Component
             });
         }
 
+        // 📊 Status filter
+        if ($this->statusFilter === 'published') {
+            $query->where('is_published', true);
+        } elseif ($this->statusFilter === 'pending') {
+            $query->where('is_published', false);
+        }
+        // 'all' shows both published and pending
+
         return $this->usePagination
             ? $query->latest()->paginate($this->perPage)
             : $query->latest()->get();
     }
 
-    #[On('loadMore')]
-    public function loadMore()
+    // Methods to get total counts (independent of current filter)
+    public function getTotalJobsCount()
     {
-        $this->perPage += 5;
+        $query = Job::query();
+
+        // Apply same role-based filtering but no status/search filters
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role === 'employer') {
+                $query->where('user_id', $user->id);
+            }
+        }
+
+        return $query->count();
     }
 
-    public function render()
+    public function getPublishedJobsCount()
     {
-        $jobs = $this->refreshJobs();
+        $query = Job::query()->where('is_published', true);
 
-        return view('livewire.job-table', [
-            'jobs' => $jobs,
-        ]);
+        // Apply same role-based filtering
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role === 'employer') {
+                $query->where('user_id', $user->id);
+            }
+        }
+
+        return $query->count();
+    }
+
+    public function getPendingJobsCount()
+    {
+        $query = Job::query()->where('is_published', false);
+
+        // Apply same role-based filtering
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role === 'employer') {
+                $query->where('user_id', $user->id);
+            }
+        }
+
+        return $query->count();
     }
 }
