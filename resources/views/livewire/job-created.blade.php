@@ -100,14 +100,150 @@
 
                         <!-- Description -->
                         <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Description
-                            </label>
-                            <textarea id="description"
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Description
+                                </label>
+                                <button
+                                    type="button"
+                                    wire:click="openAiModal"
+                                    class="inline-flex items-center gap-1.5 px-2 py-1 text-xs bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-md font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                                    title="Generate with AI"
+                                >
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    <span>Generate with AI</span>
+                                </button>
+                            </div>
+                            {{-- <textarea id="description"
                                         wire:model="description"
                                         rows="4"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500"
-                                        placeholder="Enter job description"></textarea>
+                                        placeholder="Enter job description"></textarea> --}}
+                            <!-- Rich Text Editor -->
+                            <div
+                                x-data="{
+                                    content: @entangle('description'),
+                                    editor: null,
+
+                                    init() {
+                                        this.setupEditor();
+                                    },
+
+                                    setupEditor() {
+                                        // For now, use contenteditable div with basic formatting
+                                        this.$refs.editor.innerHTML = this.content;
+
+                                        // Listen for content changes
+                                        this.$refs.editor.addEventListener('input', () => {
+                                            this.content = this.$refs.editor.innerHTML;
+                                        });
+
+                                        // Watch for external content updates (like from AI)
+                                        this.$watch('content', (newValue) => {
+                                            if (this.$refs.editor.innerHTML !== newValue) {
+                                                this.$refs.editor.innerHTML = newValue;
+                                            }
+                                        });
+                                    },
+
+                                    formatText(command, value = null) {
+                                        document.execCommand(command, false, value);
+                                        this.content = this.$refs.editor.innerHTML;
+                                    },
+
+                                    isActive(command) {
+                                        return document.queryCommandState(command);
+                                    }
+                                }"
+                                x-init="init()"
+                                wire:ignore
+                                class="w-full"
+                            >
+                                <!-- Toolbar -->
+                                <div class="border border-gray-300 dark:border-gray-600 rounded-t-md bg-gray-50 dark:bg-gray-700 px-3 py-2 flex flex-wrap gap-1">
+                                    <button
+                                        type="button"
+                                        @click="formatText('bold')"
+                                        :class="{ 'bg-gray-300 dark:bg-gray-600': isActive('bold') }"
+                                        class="px-3 py-1 text-sm rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300 font-bold"
+                                        title="Bold"
+                                    >
+                                        B
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        @click="formatText('italic')"
+                                        :class="{ 'bg-gray-300 dark:bg-gray-600': isActive('italic') }"
+                                        class="px-3 py-1 text-sm rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300 italic"
+                                        title="Italic"
+                                    >
+                                        I
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        @click="formatText('underline')"
+                                        :class="{ 'bg-gray-300 dark:bg-gray-600': isActive('underline') }"
+                                        class="px-3 py-1 text-sm rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300 underline"
+                                        title="Underline"
+                                    >
+                                        U
+                                    </button>
+
+                                    <div class="border-l border-gray-300 dark:border-gray-600 mx-1"></div>
+
+                                    <button
+                                        type="button"
+                                        @click="formatText('insertUnorderedList')"
+                                        :class="{ 'bg-gray-300 dark:bg-gray-600': isActive('insertUnorderedList') }"
+                                        class="px-3 py-1 text-sm rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300"
+                                        title="Bullet List"
+                                    >
+                                        •
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        @click="formatText('insertOrderedList')"
+                                        :class="{ 'bg-gray-300 dark:bg-gray-600': isActive('insertOrderedList') }"
+                                        class="px-3 py-1 text-sm rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300"
+                                        title="Numbered List"
+                                    >
+                                        1.
+                                    </button>
+
+                                    <div class="border-l border-gray-300 dark:border-gray-600 mx-1"></div>
+
+                                    <button
+                                        type="button"
+                                        @click="formatText('formatBlock', 'h2')"
+                                        class="px-3 py-1 text-sm rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300 font-bold"
+                                        title="Heading"
+                                    >
+                                        H2
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        @click="formatText('formatBlock', 'p')"
+                                        class="px-3 py-1 text-sm rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300"
+                                        title="Paragraph"
+                                    >
+                                        P
+                                    </button>
+                                </div>
+
+                                <!-- Editor Content -->
+                                <div
+                                    x-ref="editor"
+                                    contenteditable="true"
+                                    class="rich-text-editor border border-t-0 border-gray-300 dark:border-gray-600 rounded-b-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white min-h-[150px] p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    placeholder="Describe the role, responsibilities, and what you're looking for in a candidate..."
+                                ></div>
+                            </div>
                             @error('description')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                             @enderror
@@ -137,4 +273,7 @@
             </div>
         </div>
     {{-- @endif --}}
+
+    <!-- AI Description Modal -->
+    <livewire:ai-description-modal />
 </div>

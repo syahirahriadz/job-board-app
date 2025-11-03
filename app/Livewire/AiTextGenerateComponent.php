@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Jobs\SendAiPrompt;
 use App\Models\AiPrompt;
 use App\Services\DeepseekService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -19,17 +20,17 @@ class AiTextGenerateComponent extends Component
         $this->requestId = Str::uuid();
 
         $this->currentPrompt = AiPrompt::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'request_id' => $this->requestId,
             'prompt' => $this->prompt,
-            'status' => 'Pending',
+            'status' => 'pending',
         ]);
 
         // Communicate dengan deepseek.
         SendAiPrompt::dispatch(
             $this->requestId,
             $this->prompt,
-            auth()->id()
+            Auth::id()
         );
     }
 

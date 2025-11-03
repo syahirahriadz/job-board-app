@@ -20,7 +20,7 @@ class JobCreated extends Component
     #[Validate('required|string|max:255')]
     public $location;
 
-    #[Validate('nullable|string|max:255')]
+    #[Validate('nullable|string')]
     public $description;
 
     public $showModal = false;
@@ -32,6 +32,17 @@ class JobCreated extends Component
     {
         // $this->reset(['title', 'company', 'location', 'description']);
         $this->showModal = true;
+    }
+
+    #[On('ai-response-generated')]
+    public function handleAiResponse($response)
+    {
+        $this->description = $response;
+    }
+
+    public function openAiModal()
+    {
+        $this->dispatch('openAiModal');
     }
 
     public function save()

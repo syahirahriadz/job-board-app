@@ -35,11 +35,11 @@ class SendAiPrompt implements ShouldQueue
         try {
             $aiPrompt->update([
                 'response' => $response,
-                'status' => 'Completed',
+                'status' => 'completed',
             ]);
         } catch (\Exception $e) {
             $aiPrompt->update([
-                'status' => 'Failed',
+                'status' => 'failed',
                 'error_message' => $e->getMessage(),
             ]);
             Log::error('Error processing AI prompt.', [

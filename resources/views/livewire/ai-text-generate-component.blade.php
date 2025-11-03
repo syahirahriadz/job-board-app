@@ -18,10 +18,10 @@
         <button
             wire:click="generatePrompt"
             wire:loading.attr="disabled"
-            @if($currentPrompt && $currentPrompt->status === 'Pending') disabled @endif
+            @if($currentPrompt && $currentPrompt->status === 'pending') disabled @endif
             class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50 transition-colors"
         >
-            @if($currentPrompt && $currentPrompt->status === 'Pending')
+            @if($currentPrompt && $currentPrompt->status === 'pending')
                 <span>Generating...</span>
             @else
                 <span>Generate Response</span>
@@ -35,19 +35,19 @@
                 <div class="flex items-center mb-2">
                     <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Status:</span>
                     <span class="ml-2 px-2 py-1 text-xs rounded-full
-                        @if($currentPrompt->status === 'Pending') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
-                        @elseif($currentPrompt->status === 'Completed') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                        @if($currentPrompt->status === 'pending') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                        @elseif($currentPrompt->status === 'completed') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
                         @else bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 @endif">
                         {{ ucfirst($currentPrompt->status) }}
                     </span>
                 </div>
 
-                @if($currentPrompt->status === 'Pending')
+                @if($currentPrompt->status === 'pending')
                     <div class="flex items-center text-gray-600 dark:text-gray-300">
                         <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400 mr-2"></div>
                         Generating response...
                     </div>
-                @elseif($currentPrompt->status === 'Completed')
+                @elseif($currentPrompt->status === 'completed')
                     <div class="mt-4">
                         <div class="flex items-center justify-between mb-2">
                             <h3 class="font-medium text-gray-900 dark:text-gray-100">Generated Response:</h3>
@@ -62,7 +62,7 @@
                             <pre class="whitespace-pre-wrap text-sm text-gray-900 dark:text-gray-100">{!! $currentPrompt->getFormattedResponse() !!}</pre>
                         </div>
                     </div>
-                @elseif($currentPrompt->status === 'Failed')
+                @elseif($currentPrompt->status === 'failed')
                     <div class="mt-4 text-red-600 dark:text-red-400">
                         <strong>Error:</strong> {{ $currentPrompt->error_message }}
                     </div>

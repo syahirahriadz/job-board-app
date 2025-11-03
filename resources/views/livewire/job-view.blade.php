@@ -93,7 +93,7 @@
                         </h4>
                         <div class="prose prose-gray dark:prose-invert max-w-none">
                             <p class="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line">
-                                {{ $job?->description }}
+                                {!! $job?->description !!}
                             </p>
                         </div>
                     </div>
