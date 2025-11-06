@@ -17,10 +17,13 @@ class JobFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->jobTitle(),
-            'company' => $this->faker->company(),
-            'location' => $this->faker->city(),
-            'description' => $this->faker->paragraph(),
+            'title' => fake()->jobTitle(),
+            'company' => fake()->company(),
+            'location' => fake()->city(),
+            'description' => fake()->paragraph(),
+            'is_published' => fake()->boolean(80), // 80% chance of being published
+            'created_at' => fake()->dateTimeBetween('-1 month', 'now'),
+            'updated_at' => now()
         ];
     }
 }

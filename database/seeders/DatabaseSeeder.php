@@ -14,7 +14,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Job::factory(10)->create();
+        // Clear existing data
+        Job::query()->delete();
+
+        // Seed users first
         $this->call([UserSeeder::class]);
+
+        // Create jobs and assign some to employers
+        $employers = User::where('role', 'employer')->get();
+
+        if ($employers->isNotEmpty()) {
+            // Create jobs with employers
+            Job::factory(10)->create([
+                'user_id' => fn() => $employers->random()->id,
+            ]);
+        }
+
+        // Create some jobs without assigned employers
+        Job::factory(5)->create();
     }
 }
