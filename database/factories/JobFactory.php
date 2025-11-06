@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Job;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Job>
@@ -14,6 +15,8 @@ class JobFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    protected $model = Job::class;
+
     public function definition(): array
     {
         return [
